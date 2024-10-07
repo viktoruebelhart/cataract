@@ -20,8 +20,8 @@ def load_image():
         image = Image.open(io.BytesIO(uploaded_file.read()))
         st.image(image, caption='Imagem carregada com sucesso', use_column_width=True)
         
-        # Redimensionar a imagem para o formato 416x416x3
-        image = image.resize((416, 416))
+        # Redimensionar a imagem para o formato 256x256x3
+        image = image.resize((256, 256))
         image = np.array(image, dtype=np.float32) / 255.0  # Normalização
         image = np.expand_dims(image, axis=0)  # Expansão para incluir a dimensão de batch
         
@@ -40,11 +40,6 @@ def forecast(interpreter, image):
     # Definir a forma esperada para o modelo
     expected_shape = input_details[0]['shape']
     st.write(f"Forma esperada de entrada pelo modelo: {expected_shape}")
-    
-    # Verifica se a forma da imagem está correta
-    if image.shape != expected_shape:
-        st.error("A forma da imagem não é compatível com a entrada do modelo.")
-        return
     
     # Passar a imagem processada para o modelo
     interpreter.set_tensor(input_details[0]['index'], image)
