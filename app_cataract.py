@@ -5,13 +5,11 @@ import io
 from PIL import Image 
 import numpy as np
 import pandas as pd
-import plotly.express as px
 
 @st.cache_resource
 def load_model():
-    # Link do model
-    # https://drive.google.com/file/d/1MC4ZT730DUtMQ4MUJ7Rj8dt3d5rpCImp/view?usp=drive_link
-    url = 'https://drive.google.com/uc?id=1MC4ZT730DUtMQ4MUJ7Rj8dt3d5rpCImp'
+    # Link do modelo TFLite de catarata
+    url = 'https://drive.google.com/uc?id=1NSsQconZZViIPqI5Z-2tWqK1AVXoN-0h'
 
     gdown.download(url, 'cataract_model.tflite')
     interpreter = tf.lite.Interpreter(model_path='cataract_model.tflite')
@@ -20,17 +18,17 @@ def load_model():
     
 
 def load_image():
-    uploaded_file = st.file_uploader('Upload eye image for analysis', type=['png', 'jpeg', 'jpg'])
+    uploaded_file = st.file_uploader('Faça upload da imagem do olho para análise', type=['png', 'jpeg', 'jpg'])
 
     if uploaded_file is not None:
         image_data = uploaded_file.read()
         image = Image.open(io.BytesIO(image_data))
 
-        st.image(image, caption='Image uploaded successfully', use_column_width=True)
+        st.image(image, caption='Imagem carregada com sucesso', use_column_width=True)
 
         image = np.array(image, dtype=np.float32)
-        image = image / 255.0  # Normalize image
-        image = np.expand_dims(image, axis=0)  # add dimension batch
+        image = image / 255.0  # Normalizar a imagem
+        image = np.expand_dims(image, axis=0)  # Adicionar a dimensão de batch
 
         return image
     
@@ -44,25 +42,25 @@ def forecast(interpreter, image):
 
     output_data = interpreter.get_tensor(output_details[0]['index'])
 
-    # Classes de catarata: Immature ou Mature
-    classes = ['Immature Cataract', 'Mature Cataract']
+    # Como a saída é escalar, interpretamos:
+    probability = output_data[0][0]
 
-    # Criar dataframe para visualização das probabilidades
-    df = pd.DataFrame()
-    df['classes'] = classes
-    df['probability (%)'] = 100 * output_data[0]
+    # Definir classes
+    if probability < 0.5:
+        classification = 'Immature Cataract'
+    else:
+        classification = 'Mature Cataract'
 
-    # Exibir gráfico de barras com as probabilidades
-    fig = px.bar(df, y='classes', x='probability (%)', orientation='h', text='probability (%)',
-                 title='Probabilidade de catarata')
-    st.plotly_chart(fig)
+    # Exibir o resultado
+    st.write(f"### Classificação: {classification}")
+    st.write(f"### Probabilidade: {probability:.2%}")
 
 def main():
     st.set_page_config(
-        page_title="Cataract Diagnosis"
+        page_title="Diagnóstico de Catarata"
     )
-    st.write("# Cataract Diagnosis !")
-    st.write("Upload an image of the eye to classify the cataract stage.")
+    st.write("# Diagnóstico de Catarata!")
+    st.write("Carregue uma imagem do olho para classificar o estágio da catarata.")
 
     # Carregar o modelo
     interpreter = load_model()
