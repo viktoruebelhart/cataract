@@ -25,7 +25,7 @@ def load_image():
         image = Image.open(io.BytesIO(image_data))
 
         st.image(image, caption='Imagem carregada com sucesso', use_column_width=True)
-        image = image.resize((224, 224))  # Exemplo de redimensionamento
+        image = image.resize((416, 416))  # Exemplo de redimensionamento
         image = image.convert('RGB')
         image = np.array(image, dtype=np.float32)
         image = image / 255.0  # Normalizar a imagem
