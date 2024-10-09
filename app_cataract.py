@@ -7,7 +7,8 @@ import numpy as np
 
 @st.cache_resource
 def load_model():
-    url = 'https://drive.google.com/uc?id=1NSsQconZZViIPqI5Z-2tWqK1AVXoN-0h'
+    #https://drive.google.com/file/d/1hrx7hSRezwkXr34_Feq4ZLdvhlkS_R3n/view?usp=drive_link
+    url = 'https://drive.google.com/uc?id=1hrx7hSRezwkXr34_Feq4ZLdvhlkS_R3n'
     gdown.download(url, 'cataract_model.tflite', quiet=False)
     interpreter = tf.lite.Interpreter(model_path='cataract_model.tflite')
     interpreter.allocate_tensors()
